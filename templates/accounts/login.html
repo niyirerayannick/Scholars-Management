@@ -177,7 +177,7 @@
       {% endif %}
 
       <label class="field">
-        Reg. Number / Username
+        Username
         {{ form.username }}
       </label>
 
@@ -204,7 +204,7 @@
   </main>
 
   <script>
-    document.getElementById("id_username").setAttribute("placeholder", "Reg. Number / Username");
+    document.getElementById("id_username").setAttribute("placeholder", "Username");
     document.getElementById("id_password").setAttribute("placeholder", "Password");
     function togglePassword() {
       const field = document.getElementById("id_password");
