@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block page_title %}Excel Import{% endblock %}
+{% block content %}
+<section class="grid gap-5 xl:grid-cols-[.9fr_1.3fr]">
+  <div class="card p-6">
+    <div class="section-title !mt-0"><span>Import</span><span>Upload Excel File</span></div>
+    <p class="text-sm text-slate-500">Upload an `.xlsx` file with the required Scholar columns. The system previews valid rows before saving and blocks duplicate emails.</p>
+    <a class="btn btn-secondary mt-4" href="{% url 'import_sample_template' %}">Download Sample Template</a>
+    <form method="post" enctype="multipart/form-data" class="mt-5">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="preview">
+      {{ form.file }}
+      <button class="btn btn-primary mt-5">Preview Import</button>
+    </form>
+    <div class="mt-5 rounded-xl bg-[#f7f5f1] p-4 text-xs text-slate-600">
+      <div class="font-black text-[#354055]">Required headers</div>
+      <p class="mt-2 leading-6">{{ fields|join:", " }}</p>
+    </div>
+  </div>
+
+  <div class="space-y-5">
+    {% if preview %}
+      <div class="card p-6">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 class="text-xl font-black text-[#00628b]">Preview Ready</h2>
+            <p class="text-sm text-slate-500">{{ preview|length }} valid rows are ready to save.</p>
+          </div>
+          <form method="post">{% csrf_token %}<input type="hidden" name="action" value="confirm"><button class="btn btn-gold">Confirm and Save</button></form>
+        </div>
+        <div class="mt-4 max-h-72 overflow-auto">
+          <table class="table w-full">
+            <thead><tr><th>Row</th><th>Name</th><th>Email</th><th>Cohort</th><th>Level</th><th>Status</th></tr></thead>
+            <tbody>{% for item in preview %}<tr><td>{{ item.row }}</td><td>{{ item.data.first_name }} {{ item.data.last_name }}</td><td>{{ item.data.email }}</td><td>{{ item.data.cohort }}</td><td>{{ item.data.level_of_study }}</td><td>{% if item.data.is_active %}<span class="status-badge status-active">Active</span>{% else %}<span class="status-badge status-inactive">Inactive</span>{% endif %}</td></tr>{% endfor %}</tbody>
+          </table>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if results %}
+      <div class="card p-6">
+        <div class="section-title !mt-0"><span>Results</span><span>Import Results</span></div>
+        <div class="grid gap-3 sm:grid-cols-3">
+          <div class="rounded-xl bg-[#e3f3f1] p-4"><div class="text-xs font-bold uppercase text-[#00628b]">Created</div><div class="text-2xl font-black text-[#00628b]">{{ results.created }}</div></div>
+          <div class="rounded-xl bg-[#fdf3dd] p-4"><div class="text-xs font-bold uppercase text-[#c68b1a]">Skipped</div><div class="text-2xl font-black text-[#c68b1a]">{{ results.skipped }}</div></div>
+          <div class="rounded-xl bg-slate-100 p-4"><div class="text-xs font-bold uppercase text-slate-500">Errors</div><div class="text-2xl font-black text-slate-700">{{ results.errors|length }}</div></div>
+        </div>
+        {% if results.errors %}
+          <div class="mt-4 max-h-96 overflow-auto">
+            <table class="table w-full">
+              <thead><tr><th>Row</th><th>Email</th><th>Error</th></tr></thead>
+              <tbody>{% for error in results.errors %}<tr><td>{{ error.row }}</td><td>{{ error.email }}</td><td class="text-red-700">{{ error.message }}</td></tr>{% endfor %}</tbody>
+            </table>
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Analysis - MCFSP{% endblock %}
+{% block page_title %}Analysis{% endblock %}
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/analysis.css' %}">
+{% endblock %}
+{% block content %}
+<div class="analysis-page">
+  <header class="analysis-header">
+    <div class="analysis-brand">
+      <span class="analysis-pill">MCFSP</span>
+      <div>
+        <div class="analysis-name">Mastercard Foundation Scholars Program</div>
+        <div class="analysis-sub">Dynamic strategist analysis from Scholar database records</div>
+      </div>
+    </div>
+    <div class="analysis-hstats">
+      <div class="analysis-hstat"><div class="analysis-hval">{{ kpi_cards.0.value }}</div><div class="analysis-hlbl">Total Scholars</div></div>
+      <div class="analysis-hstat"><div class="analysis-hval">{{ kpi_cards.1.value }}</div><div class="analysis-hlbl">Active</div></div>
+      <div class="analysis-hstat"><div class="analysis-hval">{{ kpi_cards.1.sub|cut:" retention" }}</div><div class="analysis-hlbl">Retention</div></div>
+    </div>
+  </header>
+
+  <form class="analysis-filters" method="get">
+    <div class="analysis-filter-grid">
+      <div class="analysis-filter"><label>Cohort</label><select name="cohort"><option value="all">All</option>{% for value in options.cohort %}<option value="{{ value }}" {% if selected.cohort == value %}selected{% endif %}>{{ value }}</option>{% endfor %}</select></div>
+      <div class="analysis-filter"><label>Category</label><select name="category"><option value="all">All</option>{% for value in options.category %}<option value="{{ value }}" {% if selected.category == value %}selected{% endif %}>{{ value }}</option>{% endfor %}</select></div>
+      <div class="analysis-filter"><label>Gender</label><select name="gender"><option value="all">All</option>{% for value in options.gender %}<option value="{{ value }}" {% if selected.gender == value %}selected{% endif %}>{{ value }}</option>{% endfor %}</select></div>
+      <div class="analysis-filter"><label>Status</label><select name="status"><option value="all">All</option><option value="active" {% if selected.status == "active" %}selected{% endif %}>Active</option><option value="inactive" {% if selected.status == "inactive" %}selected{% endif %}>Inactive</option></select></div>
+      <div class="analysis-filter"><label>Level</label><select name="level"><option value="all">All</option>{% for value in options.level %}<option value="{{ value }}" {% if selected.level == value %}selected{% endif %}>{{ value }}</option>{% endfor %}</select></div>
+      <div class="analysis-filter"><label>Campus</label><select name="campus"><option value="all">All</option>{% for value in options.campus %}<option value="{{ value }}" {% if selected.campus == value %}selected{% endif %}>{{ value }}</option>{% endfor %}</select></div>
+      <div class="analysis-filter"><label>Alumni</label><select name="alumni"><option value="all">All</option><option value="yes" {% if selected.alumni == "yes" %}selected{% endif %}>Alumni</option><option value="no" {% if selected.alumni == "no" %}selected{% endif %}>Not Yet</option></select></div>
+      <div class="analysis-filter"><label>College</label><select name="college"><option value="all">All</option>{% for value in options.college %}<option value="{{ value }}" {% if selected.college == value %}selected{% endif %}>{{ value }}</option>{% endfor %}</select></div>
+    </div>
+    <div class="mt-3 flex gap-2"><button class="btn btn-primary">Apply Filters</button><a class="btn btn-secondary" href="{% url 'analysis' %}">Reset</a></div>
+  </form>
+
+  <main class="analysis-main">
+    <div class="sec-row" style="margin-top:0;"><span class="sec-tag">KPIs</span><span class="sec-title">Key Performance Indicators</span><div class="sec-rule"></div><span class="sec-note">Showing {{ filtered_total }} scholars</span></div>
+    <div class="kpi-strip">
+      {% for card in kpi_cards %}
+        <div class="akpi tone-{{ card.tone }}"><div class="akpi-lbl">{{ card.label }}</div><div class="akpi-num">{{ card.value }}</div><div class="akpi-sub">{{ card.sub }}</div></div>
+      {% endfor %}
+    </div>
+
+    <div class="sec-row"><span class="sec-tag">Distribution</span><span class="sec-title">Gender, Category, Cohort Trends</span><div class="sec-rule"></div></div>
+    <div class="g3">
+      <div class="analysis-card">
+        <div class="ch"><div><div class="ct">Gender Distribution</div><div class="cs">Filtered scholars by gender</div></div><span class="ctag ctag-teal">KPI</span></div>
+        <div class="dnut-wrap">
+          <div class="dnut-canvas"><canvas id="genderChart"></canvas><div class="dnut-center"><div class="dnut-big">{{ payload.gender.total }}</div><div class="dnut-tiny">total</div></div></div>
+          <div class="dnut-rows">
+            <div class="dnut-row"><span>Female</span><span><span class="dnut-rval">{{ payload.gender.female }}</span> {{ payload.gender.female_pct }}%</span></div>
+            <div class="dnut-row"><span>Male</span><span><span class="dnut-rval">{{ payload.gender.male }}</span> {{ payload.gender.male_pct }}%</span></div>
+            <div class="dnut-row"><span>Active F/M</span><span>{{ payload.gender.active_female }} / {{ payload.gender.active_male }}</span></div>
+            <div class="dnut-row"><span>Alumni F/M</span><span>{{ payload.gender.alumni_female }} / {{ payload.gender.alumni_male }}</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="analysis-card"><div class="ch"><div><div class="ct">Total Scholars by Category</div><div class="cs">Total vs active per category</div></div><span class="ctag ctag-slate">KPI</span></div><div class="lgd"><div class="li"><span class="ld" style="background:#00628b"></span>Total</div><div class="li"><span class="ld" style="background:#c68b1a"></span>Active</div></div><div style="height:210px"><canvas id="categoryChart"></canvas></div></div>
+      <div class="analysis-card"><div class="ch"><div><div class="ct">Cohort Enrollment and Retention</div><div class="cs">Active vs total per cohort</div></div><span class="ctag ctag-gold">Trend</span></div><div class="lgd"><div class="li"><span class="lc" style="background:#00628b"></span>Enrolled</div><div class="li"><span class="lc" style="background:#c68b1a"></span>Active</div></div><div style="height:210px"><canvas id="cohortChart"></canvas></div></div>
+    </div>
+
+    <div class="sec-row"><span class="sec-tag">Campus</span><span class="sec-title">Active Scholars by Campus</span><div class="sec-rule"></div></div>
+    <div class="g31">
+      <div class="analysis-card">
+        <div class="ch"><div><div class="ct">Campus Performance Overview</div><div class="cs">Enrollment, retention rate, and gender per campus</div></div><span class="ctag ctag-teal">KPI</span></div>
+        <table class="dtable"><thead><tr><th>Campus</th><th>Total</th><th>Active</th><th>Retention</th><th>Female</th><th>Male</th><th>Rate Bar</th></tr></thead><tbody>{% for row in campuses %}<tr><td>{{ row.label }}</td><td>{{ row.total }}</td><td>{{ row.active }}</td><td><span class="rbadge">{{ row.retention }}%</span></td><td>{{ row.female }}</td><td>{{ row.male }}</td><td><div class="ibar"><div class="itrack"><div class="ifill" style="width:{{ row.retention }}%"></div></div></div></td></tr>{% endfor %}</tbody></table>
+      </div>
+      <div class="analysis-card"><div class="ch"><div><div class="ct">Campus Share</div><div class="cs">Proportion of scholars per campus</div></div><span class="ctag ctag-slate">Split</span></div><div style="height:230px"><canvas id="campusPie"></canvas></div></div>
+    </div>
+    <div class="analysis-card" style="margin-bottom:16px;"><div class="ch"><div><div class="ct">Female vs Male Scholars by Campus</div><div class="cs">Gender split by campus</div></div><span class="ctag ctag-teal">KPI</span></div><div style="height:270px"><canvas id="campusGenderChart"></canvas></div></div>
+
+    <div class="sec-row"><span class="sec-tag">College</span><span class="sec-title">Active Scholars by College</span><div class="sec-rule"></div></div>
+    <div class="g31">
+      <div class="analysis-card">
+        <div class="ch"><div><div class="ct">College Performance Overview</div><div class="cs">Enrollment, retention rate, and gender per college</div></div><span class="ctag ctag-teal">KPI</span></div>
+        <table class="dtable"><thead><tr><th>College</th><th>Total</th><th>Active</th><th>Retention</th><th>Female</th><th>Male</th><th>Rate Bar</th></tr></thead><tbody>{% for row in colleges %}<tr><td>{{ row.label }}</td><td>{{ row.total }}</td><td>{{ row.active }}</td><td><span class="rbadge">{{ row.retention }}%</span></td><td>{{ row.female }}</td><td>{{ row.male }}</td><td><div class="ibar"><div class="itrack"><div class="ifill" style="width:{{ row.retention }}%"></div></div></div></td></tr>{% endfor %}</tbody></table>
+      </div>
+      <div class="analysis-card"><div class="ch"><div><div class="ct">College Performance Ranking</div><div class="cs">Active / total ranked by enrollment</div></div><span class="ctag ctag-gold">Ranked</span></div><div class="plist">{% for row in colleges %}<div class="prow"><div class="ptop"><span class="pname">{{ row.label }}</span><span class="pnum">{{ row.active }} / {{ row.total }}</span></div><div class="ptrack"><div class="pfill" style="width:{{ row.retention }}%"></div></div></div>{% endfor %}</div></div>
+    </div>
+
+    <div class="sec-row"><span class="sec-tag">Demographics</span><span class="sec-title">Nationality and Category by Gender</span><div class="sec-rule"></div></div>
+    <div class="g2">
+      <div class="analysis-card"><div class="ch"><div><div class="ct">Total Scholars by Nationality</div><div class="cs">Home country breakdown</div></div><span class="ctag ctag-teal">KPI</span></div><div style="height:280px"><canvas id="nationalityChart"></canvas></div></div>
+      <div class="analysis-card"><div class="ch"><div><div class="ct">Active Scholars by Gender and Category</div><div class="cs">Stacked gender split per category</div></div><span class="ctag ctag-slate">KPI</span></div><div style="height:280px"><canvas id="catGenderChart"></canvas></div></div>
+    </div>
+
+    <div class="sec-row"><span class="sec-tag">Academic</span><span class="sec-title">Level of Studies, STEM Mix, Pipeline</span><div class="sec-rule"></div></div>
+    <div class="g3">
+      <div class="analysis-card"><div class="ch"><div><div class="ct">Scholars by Level of Study</div><div class="cs">Academic level mix</div></div><span class="ctag ctag-plum">KPI</span></div><div style="height:220px"><canvas id="levelChart"></canvas></div></div>
+      <div class="analysis-card"><div class="ch"><div><div class="ct">STEM vs Non-STEM</div><div class="cs">Program category distribution</div></div><span class="ctag ctag-gold">Mix</span></div><div style="height:220px"><canvas id="stemChart"></canvas></div></div>
+      <div class="analysis-card"><div class="ch"><div><div class="ct">Scholar Status Funnel</div><div class="cs">Drop-off analysis across stages</div></div><span class="ctag ctag-sienna">Funnel</span></div><div class="funnel">{% for item in funnel %}<div class="fstep"><div class="flabel">{{ item.label }}</div><div class="fbar-wrap"><div class="fbar" style="width:{{ item.pct }}%">{{ item.pct }}%</div></div><div class="fcount">{{ item.count }}</div></div>{% endfor %}</div></div>
+    </div>
+
+    <div class="sec-row"><span class="sec-tag">Timeline</span><span class="sec-title">Graduation Pipeline and Time-Based Trends</span><div class="sec-rule"></div></div>
+    <div class="g2">
+      <div class="analysis-card"><div class="ch"><div><div class="ct">Expected Graduation Year</div><div class="cs">Scholar pipeline by projected graduation</div></div><span class="ctag ctag-plum">Timeline</span></div><div style="height:230px"><canvas id="graduationChart"></canvas></div></div>
+      <div class="analysis-card"><div class="ch"><div><div class="ct">Current Class Year and Intake Split</div><div class="cs">Year of study breakdown by intake</div></div><span class="ctag ctag-teal">Breakdown</span></div><div style="height:230px"><canvas id="classYearChart"></canvas></div></div>
+    </div>
+
+    <div class="sec-row"><span class="sec-tag">Alumni</span><span class="sec-title">Alumni by Gender and Level</span><div class="sec-rule"></div></div>
+    <div class="g2">
+      <div class="analysis-card"><div class="ch"><div><div class="ct">Total Alumni by Gender</div><div class="cs">Graduate gender breakdown</div></div><span class="ctag ctag-plum">Alumni</span></div><div style="height:230px"><canvas id="alumniGenderChart"></canvas></div></div>
+      <div class="analysis-card"><div class="ch"><div><div class="ct">Total Alumni by Level of Study</div><div class="cs">Academic level among alumni</div></div><span class="ctag ctag-plum">Alumni</span></div><div style="height:230px"><canvas id="alumniLevelChart"></canvas></div></div>
+    </div>
+
+    <div class="sec-row"><span class="sec-tag">Insights</span><span class="sec-title">Key Findings and Recommendations</span><div class="sec-rule"></div></div>
+    <div class="insight-row">{% for insight in insights %}<div class="insight"><strong>Finding {{ forloop.counter }}.</strong> {{ insight }}</div>{% endfor %}</div>
+  </main>
+</div>
+{{ payload|json_script:"analysis-data" }}
+{% endblock %}
+{% block scripts %}
+<script>
+const A = JSON.parse(document.getElementById('analysis-data').textContent);
+const colors = ['#00628b','#ce971c','#000000','#8e9aaa','#c68b1a','#354055','#f0ede8'];
+const opts = (extra={}) => ({responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{boxWidth:10, color:'#5a6578', font:{size:11}}}}, ...extra});
+function values(rows, key='total') { return rows.map(r => r[key]); }
+function labels(rows) { return rows.map(r => r.label); }
+function donut(id, labs, vals, cutout='68%') { new Chart(document.getElementById(id), {type:'doughnut', data:{labels:labs, datasets:[{data:vals, backgroundColor:colors}]}, options:opts({cutout})}); }
+function bar(id, labs, datasets, extra={}) { new Chart(document.getElementById(id), {type:'bar', data:{labels:labs, datasets}, options:opts(extra)}); }
+donut('genderChart', ['Female','Male','Other'], [A.gender.female, A.gender.male, A.gender.other], '72%');
+bar('categoryChart', A.categories.map(r=>r.category || 'Unspecified'), [{label:'Total', data:A.categories.map(r=>r.total), backgroundColor:'#00628b'}, {label:'Active', data:A.categories.map(r=>r.active), backgroundColor:'#ce971c'}]);
+new Chart(document.getElementById('cohortChart'), {type:'line', data:{labels:labels(A.cohorts), datasets:[{label:'Enrolled', data:values(A.cohorts), borderColor:'#00628b', backgroundColor:'#00628b22', tension:.35}, {label:'Active', data:values(A.cohorts,'active'), borderColor:'#ce971c', backgroundColor:'#ce971c22', tension:.35}]}, options:opts()});
+donut('campusPie', labels(A.campuses), values(A.campuses), '60%');
+bar('campusGenderChart', labels(A.campuses), [{label:'Female', data:values(A.campuses,'female'), backgroundColor:'#00628b'}, {label:'Male', data:values(A.campuses,'male'), backgroundColor:'#ce971c'}]);
+bar('nationalityChart', labels(A.nationality), [{label:'Scholars', data:values(A.nationality), backgroundColor:'#00628b'}], {indexAxis:'y'});
+bar('catGenderChart', A.categories.map(r=>r.category || 'Unspecified'), [{label:'Female', data:A.categories.map(r=>r.female), backgroundColor:'#00628b'}, {label:'Male', data:A.categories.map(r=>r.male), backgroundColor:'#ce971c'}], {indexAxis:'y', scales:{x:{stacked:true}, y:{stacked:true}}});
+donut('levelChart', labels(A.levels), values(A.levels), '68%');
+donut('stemChart', labels(A.stem), values(A.stem), '68%');
+bar('graduationChart', labels(A.graduation), [{label:'Enrolled', data:values(A.graduation), backgroundColor:'#5c3e8f'}, {label:'Active', data:values(A.graduation,'active'), backgroundColor:'#00628b'}]);
+bar('classYearChart', A.class_year_intake.labels, A.class_year_intake.datasets.map((d,i)=>({label:d.label, data:d.values, backgroundColor:colors[i % colors.length]})));
+donut('alumniGenderChart', labels(A.alumni_gender), values(A.alumni_gender), '68%');
+bar('alumniLevelChart', labels(A.alumni_level), [{label:'Alumni', data:values(A.alumni_level), backgroundColor:'#5c3e8f'}]);
+</script>
+{% endblock %}

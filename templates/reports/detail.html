@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<section class="rounded-2xl bg-[#00628b] p-6 text-white shadow-xl">
+  <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div>
+      <div class="text-xs font-bold uppercase tracking-[0.24em] text-white/80">MCFSP Report</div>
+      <h2 class="mt-2 text-3xl font-black">{{ title }}</h2>
+      <p class="mt-1 text-white/80">Filtered live data from Scholar records.</p>
+    </div>
+    <div class="no-print flex flex-wrap gap-2">
+      <button type="button" onclick="window.print()" class="btn bg-white text-[#00628b]">Print</button>
+      <form method="get">{% for field in filter_form %}<input type="hidden" name="{{ field.name }}" value="{{ field.value|default:'' }}">{% endfor %}<button name="export" value="excel" class="btn btn-gold">Excel</button><button name="export" value="pdf" class="btn bg-white text-[#00628b]">PDF</button></form>
+    </div>
+  </div>
+</section>
+
+<section class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+  {% for label,value in summary_cards %}
+    <div class="card p-5">
+      <div class="text-xs font-bold uppercase tracking-wide text-slate-500">{{ label }}</div>
+      <div class="mt-2 text-3xl font-black text-[#00628b]">{{ value }}</div>
+    </div>
+  {% endfor %}
+</section>
+
+<form class="card no-print my-5 grid gap-3 p-5 md:grid-cols-5" method="get">
+  {% for field in filter_form %}<label class="text-xs font-bold uppercase text-slate-500">{{ field.label }}{{ field }}</label>{% endfor %}
+  <div class="flex items-end gap-2"><button class="btn btn-primary">Filter</button><a class="btn btn-secondary" href="{% url 'report_detail' slug %}">Reset</a></div>
+</form>
+
+{% if summary %}
+<div class="section-title"><span>Summary</span><span>Grouped Report Summary</span></div>
+<div class="card mb-5 overflow-hidden">
+  <table class="table w-full">
+    <thead><tr><th>Group</th><th>Total</th><th>Active</th><th>Alumni</th><th>Female</th><th>Male</th></tr></thead>
+    <tbody>{% for row in summary %}<tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table>
+</div>
+{% endif %}
+
+<div class="section-title"><span>Records</span><span>Scholar Records</span></div>
+<div class="card overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="table w-full">
+      <thead><tr><th>Student No</th><th>Name</th><th>Gender</th><th>Level</th><th>College</th><th>Program</th><th>Campus</th><th>Scholarship</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for scholar in scholars %}
+          <tr><td>{{ scholar.student_no|default:"-" }}</td><td class="font-bold">{{ scholar.full_name }}</td><td>{{ scholar.gender }}</td><td>{{ scholar.level_of_study }}</td><td>{{ scholar.college }}</td><td>{{ scholar.program|default:"-" }}</td><td>{{ scholar.campus }}</td><td>{{ scholar.type_of_scholarship|default:scholar.category }}</td><td>{% if scholar.is_active %}<span class="status-badge status-active">Active</span>{% else %}<span class="status-badge status-inactive">Inactive</span>{% endif %}</td></tr>
+        {% empty %}<tr><td colspan="9">No records.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

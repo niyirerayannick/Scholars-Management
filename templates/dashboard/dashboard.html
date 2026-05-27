@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content %}
+<section class="overflow-hidden rounded-2xl text-white shadow-xl" style="background:linear-gradient(135deg,#003a52 0%,#004d6e 50%,#00628b 100%);">
+  <div class="flex flex-col gap-4 p-6 lg:flex-row lg:items-center lg:justify-between">
+    <div>
+      <div class="inline-flex rounded-md bg-white/15 border border-white/20 px-3 py-1 text-xs font-bold uppercase tracking-[0.24em]">MCFSP</div>
+      <h2 class="mt-3 text-3xl font-black">Scholars Dashboard</h2>
+      <p class="mt-1 text-white/75">Live database view of enrollment, retention, demographics, and alumni pipeline.</p>
+    </div>
+    <div class="rounded-full border border-white/25 bg-white/10 px-5 py-2 font-mono text-sm backdrop-blur-sm">{{ month_label }}</div>
+  </div>
+</section>
+
+<form class="card no-print mt-5 grid gap-3 p-5 md:grid-cols-4" method="get">
+  <label class="text-xs font-bold uppercase text-slate-500">Cohort<select name="cohort" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"><option value="all">All</option>{% for value in options.cohort %}<option value="{{ value }}" {% if selected.cohort == value %}selected{% endif %}>{{ value }}</option>{% endfor %}</select></label>
+  <label class="text-xs font-bold uppercase text-slate-500">Category<select name="category" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"><option value="all">All</option>{% for value in options.category %}<option value="{{ value }}" {% if selected.category == value %}selected{% endif %}>{{ value }}</option>{% endfor %}</select></label>
+  <label class="text-xs font-bold uppercase text-slate-500">Gender<select name="gender" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"><option value="all">All</option>{% for value in options.gender %}<option value="{{ value }}" {% if selected.gender == value %}selected{% endif %}>{{ value }}</option>{% endfor %}</select></label>
+  <label class="text-xs font-bold uppercase text-slate-500">Status<select name="status" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"><option value="all">All</option><option value="active" {% if selected.status == "active" %}selected{% endif %}>Active</option><option value="inactive" {% if selected.status == "inactive" %}selected{% endif %}>Inactive</option></select></label>
+  <div class="md:col-span-4 flex gap-2"><button class="btn btn-primary">Apply Filters</button><a href="{% url 'dashboard' %}" class="btn btn-secondary">Reset</a><a href="{% url 'analysis' %}" class="btn btn-gold">Open Full Analysis</a></div>
+</form>
+
+<div class="section-title"><span>KPIs</span><span>Key Performance Indicators</span></div>
+<section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+  {% for card in kpi_cards %}
+    <div class="card relative overflow-hidden p-5">
+      <div class="kpi-accent absolute inset-y-0 left-0 w-1.5 rounded-l-[14px]"></div>
+      <div class="text-xs font-bold uppercase tracking-wide text-slate-500">{{ card.label }}</div>
+      <div class="mt-2 text-3xl font-black" style="color:#00628b;">{{ card.value }}</div>
+      <div class="mt-2 text-sm font-semibold text-slate-400">{{ card.sub }}</div>
+    </div>
+  {% endfor %}
+</section>
+
+<div class="section-title"><span>Charts</span><span>Database Driven Visual Analysis</span></div>
+<section class="mt-6 grid gap-5 xl:grid-cols-2">
+  <div class="card p-5"><h2 class="font-black text-[#354055]">Gender Distribution</h2><div class="chart-box"><canvas id="genderChart"></canvas></div></div>
+  <div class="card p-5"><h2 class="font-black text-[#354055]">Category by Gender</h2><div class="chart-box"><canvas id="categoryGenderChart"></canvas></div></div>
+  <div class="card p-5"><h2 class="font-black text-[#354055]">Cohort Enrollment and Retention</h2><div class="chart-box"><canvas id="cohortChart"></canvas></div></div>
+  <div class="card p-5"><h2 class="font-black text-[#354055]">Campus Performance</h2><div class="chart-box"><canvas id="campusChart"></canvas></div></div>
+  <div class="card p-5"><h2 class="font-black text-[#354055]">College Performance</h2><div class="chart-box"><canvas id="collegeChart"></canvas></div></div>
+  <div class="card p-5"><h2 class="font-black text-[#354055]">Nationality</h2><div class="chart-box"><canvas id="nationalityChart"></canvas></div></div>
+  <div class="card p-5"><h2 class="font-black text-[#354055]">Level of Studies</h2><div class="chart-box"><canvas id="levelChart"></canvas></div></div>
+  <div class="card p-5"><h2 class="font-black text-[#354055]">STEM vs Non-STEM</h2><div class="chart-box"><canvas id="stemChart"></canvas></div></div>
+  <div class="card p-5"><h2 class="font-black text-[#354055]">Graduation Year Pipeline</h2><div class="chart-box"><canvas id="graduationChart"></canvas></div></div>
+  <div class="card p-5"><h2 class="font-black text-[#354055]">Alumni by Gender and Level</h2><div class="chart-box"><canvas id="alumniChart"></canvas></div></div>
+</section>
+{{ charts|json_script:"chart-data" }}
+{% endblock %}
+{% block scripts %}
+<script>
+const charts = JSON.parse(document.getElementById('chart-data').textContent);
+const palette = ['#00628b','#c68b1a','#0079aa','#004d6e','#e09a22','#0095cc','#003a52'];
+const baseOptions = {responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{boxWidth:10}}}};
+function bar(id, labels, values, label='Scholars') { new Chart(document.getElementById(id), {type:'bar', data:{labels, datasets:[{label, data:values, backgroundColor:palette}]}, options:{...baseOptions, plugins:{legend:{display:false}}}}); }
+function doughnut(id, labels, values) { new Chart(document.getElementById(id), {type:'doughnut', data:{labels, datasets:[{data:values, backgroundColor:palette}]}, options:{...baseOptions, cutout:'68%'}}); }
+doughnut('genderChart', charts.gender_distribution.labels, charts.gender_distribution.values);
+new Chart(document.getElementById('categoryGenderChart'), {type:'bar', data:{labels:charts.category_by_gender.labels, datasets:[{label:'Female', data:charts.category_by_gender.female, backgroundColor:'#00628b'},{label:'Male', data:charts.category_by_gender.male, backgroundColor:'#ce971c'},{label:'Other', data:charts.category_by_gender.other, backgroundColor:'#000000'}]}, options:baseOptions});
+new Chart(document.getElementById('cohortChart'), {type:'line', data:{labels:charts.cohort_enrollment_retention.labels, datasets:[{label:'Enrolled', data:charts.cohort_enrollment_retention.enrolled, borderColor:'#00628b', backgroundColor:'#00628b22', tension:.35},{label:'Retained', data:charts.cohort_enrollment_retention.retained, borderColor:'#ce971c', backgroundColor:'#ce971c22', tension:.35}]}, options:baseOptions});
+bar('campusChart', charts.campus_performance.labels, charts.campus_performance.values);
+bar('collegeChart', charts.college_performance.labels, charts.college_performance.values);
+bar('nationalityChart', charts.nationality.labels, charts.nationality.values);
+bar('levelChart', charts.level_of_studies.labels, charts.level_of_studies.values);
+doughnut('stemChart', charts.stem_non_stem.labels, charts.stem_non_stem.values);
+bar('graduationChart', charts.graduation_year_pipeline.labels, charts.graduation_year_pipeline.values);
+new Chart(document.getElementById('alumniChart'), {type:'bar', data:{labels:charts.alumni_by_gender_level.labels, datasets:[{label:'Female', data:charts.alumni_by_gender_level.female, backgroundColor:'#00628b'},{label:'Male', data:charts.alumni_by_gender_level.male, backgroundColor:'#ce971c'},{label:'Other', data:charts.alumni_by_gender_level.other, backgroundColor:'#000000'}]}, options:baseOptions});
+</script>
+{% endblock %}

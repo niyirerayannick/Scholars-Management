@@ -1,0 +1,53 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}MCFSP Scholars Management System{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-[#f0ede8] text-slate-900">
+  <div class="min-h-screen lg:flex">
+    <aside class="no-print sidebar text-white lg:fixed lg:inset-y-0 lg:w-72">
+      <div class="px-6 py-6 border-b border-white/10">
+        <div class="inline-flex rounded-md bg-[#00628b] px-3 py-1 text-xs font-bold uppercase tracking-[0.28em] text-white shadow-sm">MCFSP</div>
+        <div class="mt-2 text-2xl font-black leading-tight">Scholars Management</div>
+        <div class="mt-1 text-xs text-white/60">University of Rwanda</div>
+      </div>
+      <nav class="space-y-1 px-4 pb-6">
+        <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+        <a class="nav-link" href="{% url 'analysis' %}">Analysis</a>
+        <a class="nav-link" href="{% url 'scholar_list' %}">Scholars</a>
+        <a class="nav-link" href="{% url 'import_upload' %}">Excel Import</a>
+        <a class="nav-link" href="{% url 'report_index' %}">Reports</a>
+        <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
+      </nav>
+    </aside>
+    <main class="lg:ml-72 flex-1 p-4 sm:p-6 lg:p-8">
+      <header class="no-print mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 class="text-2xl font-black tracking-tight">{% block page_title %}Dashboard{% endblock %}</h1>
+          <p class="text-sm text-slate-500">Database-driven monitoring, reporting, and scholar records.</p>
+        </div>
+        <div class="flex items-center gap-3 text-sm">
+          {% if user.is_authenticated %}
+            <span class="rounded-full bg-white px-4 py-2 font-semibold text-slate-700 shadow-sm">{{ user.username }}</span>
+            <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn btn-secondary">Logout</button></form>
+          {% endif %}
+        </div>
+      </header>
+      {% if messages %}
+        <div class="no-print mb-5 space-y-2">
+          {% for message in messages %}<div class="rounded-lg bg-white px-4 py-3 text-sm font-semibold shadow-sm">{{ message }}</div>{% endfor %}
+        </div>
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

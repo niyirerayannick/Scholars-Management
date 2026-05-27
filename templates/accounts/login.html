@@ -1,0 +1,218 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login - MCFSP</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        linear-gradient(rgba(255,255,255,.08), rgba(255,255,255,.08)),
+        url("{% static 'images/login-bg.jpg' %}") center / cover no-repeat fixed;
+      display: grid;
+      place-items: center;
+      padding: 28px 14px;
+    }
+    .login-shell {
+      width: min(520px, 100%);
+    }
+    .login-card {
+      background: #00628b;
+      border: 1px solid rgba(255,255,255,.65);
+      border-radius: 4px 4px 0 0;
+      padding: 44px 46px 42px;
+      color: #fff;
+      box-shadow: 0 18px 50px rgba(0,0,0,.24);
+    }
+    .logo-box {
+      background: #ffffff;
+      border-radius: 10px;
+      overflow: hidden;
+      width: 50px;
+      height: 50px;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 50px;
+      max-height: 50px;
+      margin: 0 auto;
+    }
+    .logo-box img {
+      display: block;
+      width: 50px;
+      height: 50px;
+      max-height: 50px;
+      object-fit: contain;
+    }
+    .divider {
+      height: 1px;
+      background: rgba(255,255,255,.76);
+      margin: 30px 0 30px;
+    }
+    .field {
+      display: block;
+      margin-bottom: 18px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .field input {
+      width: 100%;
+      height: 47px;
+      margin-top: 12px;
+      border: 1px solid #ffffff;
+      border-radius: 4px;
+      background: #ffffff;
+      color: #000000;
+      font-size: 16px;
+      padding: 0 18px;
+      outline: none;
+    }
+    .field input:focus {
+      border-color: #ce971c;
+      box-shadow: 0 0 0 3px rgba(206,151,28,.24);
+    }
+    .password-wrap {
+      position: relative;
+    }
+    .password-wrap input {
+      padding-right: 64px;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 58px;
+      height: 47px;
+      border: 0;
+      border-left: 1px solid #000000;
+      border-radius: 0 4px 4px 0;
+      background: #ffffff;
+      color: #000000;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+    }
+    .toggle-password svg {
+      width: 21px;
+      height: 21px;
+    }
+    .remember {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 6px 0 32px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .remember input {
+      width: 18px;
+      height: 18px;
+      accent-color: #ce971c;
+    }
+    .login-btn {
+      width: 100%;
+      height: 48px;
+      border: 0;
+      border-radius: 4px;
+      background: #ce971c;
+      color: #000000;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .login-btn:hover { background: #ce971c; }
+    .forgot {
+      display: block;
+      margin-top: 32px;
+      text-align: center;
+      color: #ce971c;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    .forgot:hover { text-decoration: underline; }
+    .error-box {
+      margin-bottom: 18px;
+      border: 1px solid rgba(255,255,255,.35);
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      border-radius: 4px;
+      padding: 12px 14px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .footer-bar {
+      height: 29px;
+      display: grid;
+      place-items: center;
+      background: #000000;
+      color: #fff;
+      font-size: 17px;
+      border-radius: 0 0 1px 1px;
+    }
+    @media (max-width: 540px) {
+      body { padding: 16px; background-attachment: scroll; }
+      .login-card { padding: 30px 24px 34px; }
+      .logo-box { width: 50px; height: 50px; min-height: 50px; }
+      .field, .remember { font-size: 15px; }
+      .divider { margin: 24px 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="login-shell">
+    <form method="post" class="login-card" novalidate>
+      {% csrf_token %}
+      <div class="logo-box">
+        <img src="{% static 'images/logo.png' %}" alt="MCFSP Scholars Management System">
+      </div>
+      <div class="divider"></div>
+
+      {% if form.non_field_errors %}
+        <div class="error-box">Invalid username or password. Please try again.</div>
+      {% endif %}
+
+      <label class="field">
+        Reg. Number / Username
+        {{ form.username }}
+      </label>
+
+      <label class="field password-wrap">
+        Password
+        {{ form.password }}
+        <button class="toggle-password" type="button" aria-label="Show password" onclick="togglePassword()">
+          <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+      </label>
+
+      <label class="remember">
+        <input type="checkbox" name="remember" checked>
+        Remember me
+      </label>
+
+      <button class="login-btn" type="submit">Log In</button>
+      <a class="forgot" href="#">Forgot your password?</a>
+    </form>
+    <div class="footer-bar">&copy; 2026</div>
+  </main>
+
+  <script>
+    document.getElementById("id_username").setAttribute("placeholder", "Reg. Number / Username");
+    document.getElementById("id_password").setAttribute("placeholder", "Password");
+    function togglePassword() {
+      const field = document.getElementById("id_password");
+      const button = document.querySelector(".toggle-password");
+      const isPassword = field.type === "password";
+      field.type = isPassword ? "text" : "password";
+      button.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
+    }
+  </script>
+</body>
+</html>

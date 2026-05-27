@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block page_title %}Reports{% endblock %}
+{% block content %}
+<section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+  {% for slug,item in reports.items %}
+    <a class="card p-5 transition hover:-translate-y-0.5 hover:shadow-xl" href="{% url 'report_detail' slug %}">
+      <div class="text-lg font-black">{{ item.0 }}</div>
+      <div class="mt-2 text-sm text-slate-500">Filter, print, export Excel or PDF.</div>
+    </a>
+  {% endfor %}
+</section>
+{% endblock %}

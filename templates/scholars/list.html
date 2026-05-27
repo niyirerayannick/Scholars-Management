@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block page_title %}Scholars{% endblock %}
+{% block content %}
+<form class="card no-print mb-5 p-5" method="get">
+  <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+    <label class="flex-1 text-xs font-bold uppercase text-slate-500">Search{{ filter_form.q }}</label>
+    <div class="flex flex-wrap gap-2">
+      <button class="btn btn-primary">Filter</button>
+      <button class="btn btn-secondary" name="export" value="excel">Export Excel</button>
+      <a class="btn btn-secondary" href="{% url 'scholar_list' %}">Reset</a>
+      {% if can_edit %}<a class="btn btn-gold" href="{% url 'scholar_add' %}">Add Scholar</a>{% endif %}
+    </div>
+  </div>
+  <div class="mt-4 grid gap-3 md:grid-cols-4 xl:grid-cols-5">
+    {% for field in filter_form %}
+      {% if field.name != "q" %}<label class="text-xs font-bold uppercase text-slate-500">{{ field.label }}{{ field }}</label>{% endif %}
+    {% endfor %}
+  </div>
+</form>
+<div class="card overflow-hidden">
+  <div class="no-print flex items-center justify-between border-b border-slate-200 p-4">
+    <div><div class="font-black text-[#00628b]">{{ page_obj.paginator.count }} scholars</div><div class="text-sm text-slate-500">Search, filter, export, and manage records.</div></div>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="table w-full">
+      <thead><tr><th>Student</th><th>Gender</th><th>Scholarship</th><th>Cohort</th><th>Level</th><th>Campus</th><th>College</th><th>Status</th><th>Alumni</th><th></th></tr></thead>
+      <tbody>
+        {% for scholar in page_obj %}
+          <tr>
+            <td class="font-bold"><a href="{{ scholar.get_absolute_url }}">{{ scholar.full_name }}</a><div class="text-xs text-slate-500">{{ scholar.student_no|default:"No student no" }} / {{ scholar.email }}</div></td>
+            <td>{{ scholar.gender }}</td><td>{{ scholar.type_of_scholarship|default:scholar.category }}</td><td>{{ scholar.cohort }}</td><td>{{ scholar.level_of_study }}</td><td>{{ scholar.campus }}</td><td>{{ scholar.college }}</td>
+            <td>{% if scholar.is_active %}<span class="status-badge status-active">Active</span>{% else %}<span class="status-badge status-inactive">Inactive</span>{% endif %}</td><td>{% if scholar.is_alumni %}<span class="status-badge status-alumni">Alumni</span>{% else %}<span class="text-xs font-semibold text-slate-400">Not yet</span>{% endif %}</td>
+            <td><a class="font-bold text-[#00628b]" href="{{ scholar.get_absolute_url }}">View</a></td>
+          </tr>
+        {% empty %}<tr><td colspan="10">No scholars found.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="no-print flex justify-between p-4 text-sm">
+    {% if page_obj.has_previous %}<a class="font-bold text-[#00628b]" href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>{% else %}<span></span>{% endif %}
+    <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a class="font-bold text-[#00628b]" href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>{% else %}<span></span>{% endif %}
+  </div>
+</div>
+{% endblock %}

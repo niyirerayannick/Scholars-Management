@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block page_title %}Delete Scholar{% endblock %}
+{% block content %}
+<form method="post" class="card max-w-xl p-6">
+  {% csrf_token %}
+  <p class="text-lg">Delete <strong>{{ scholar.full_name }}</strong>? This cannot be undone.</p>
+  <div class="mt-6 flex gap-3"><button class="btn btn-danger">Delete</button><a class="btn btn-secondary" href="{{ scholar.get_absolute_url }}">Cancel</a></div>
+</form>
+{% endblock %}

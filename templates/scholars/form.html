@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block content %}
+<form method="post" class="card p-6">
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+  <div class="grid gap-4 md:grid-cols-2">
+    {% for field in form %}
+      <label class="text-sm font-bold text-slate-700">{{ field.label }}{{ field }}<span class="text-sm text-red-600">{{ field.errors }}</span></label>
+    {% endfor %}
+  </div>
+  <div class="mt-6 flex gap-3"><button class="btn btn-primary">Save</button><a class="btn btn-secondary" href="{% url 'scholar_list' %}">Cancel</a></div>
+</form>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block page_title %}{{ scholar.full_name }}{% endblock %}
+{% block content %}
+<section class="overflow-hidden rounded-2xl bg-[#00628b] text-white shadow-xl">
+  <div class="p-6">
+    <div class="text-xs font-bold uppercase tracking-[0.24em] text-white/80">Scholar Profile</div>
+    <h2 class="mt-2 text-4xl font-black">{{ scholar.full_name }}</h2>
+    <p class="mt-1 text-white/80">{{ scholar.email }}{% if scholar.phone %} / {{ scholar.phone }}{% endif %}</p>
+    <div class="mt-4 flex flex-wrap gap-2">
+      {% if scholar.is_active %}<span class="status-badge bg-white text-[#00628b]">Active</span>{% else %}<span class="status-badge bg-white text-[#b05c1a]">Inactive</span>{% endif %}
+      {% if scholar.is_alumni %}<span class="status-badge bg-white text-[#5c3e8f]">Alumni</span>{% endif %}
+      <span class="status-badge bg-white/15 text-white">{{ scholar.category }}</span>
+      <span class="status-badge bg-white/15 text-white">{{ scholar.level_of_study }}</span>
+    </div>
+  </div>
+</section>
+
+<div class="no-print mt-5 flex flex-wrap gap-2">
+  <a class="btn btn-secondary" href="{% url 'scholar_list' %}">Back to Scholars</a>
+  {% if can_edit %}
+    <a class="btn btn-primary" href="{% url 'scholar_edit' scholar.pk %}">Edit Profile</a>
+    <a class="btn btn-danger" href="{% url 'scholar_delete' scholar.pk %}">Delete</a>
+  {% endif %}
+</div>
+
+<section class="mt-5 grid gap-5 xl:grid-cols-2">
+  <div class="card p-6">
+    <div class="section-title !mt-0"><span>Personal</span><span>Personal Info</span></div>
+    <dl class="grid gap-4 md:grid-cols-2">
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Student No</dt><dd class="font-semibold">{{ scholar.student_no|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">First Name</dt><dd class="font-semibold">{{ scholar.first_name }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Last Name</dt><dd class="font-semibold">{{ scholar.last_name }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Gender</dt><dd class="font-semibold">{{ scholar.gender }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">DOB</dt><dd class="font-semibold">{{ scholar.dob|date:"M d, Y"|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Marital Status</dt><dd class="font-semibold">{{ scholar.marital_status|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Nationality</dt><dd class="font-semibold">{{ scholar.nationality }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Phone</dt><dd class="font-semibold">{{ scholar.phone|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Email</dt><dd class="font-semibold">{{ scholar.email }}</dd></div>
+    </dl>
+  </div>
+
+  <div class="card p-6">
+    <div class="section-title !mt-0"><span>Academic</span><span>Academic Info</span></div>
+    <dl class="grid gap-4 md:grid-cols-2">
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Level of Study</dt><dd class="font-semibold">{{ scholar.level_of_study }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">College</dt><dd class="font-semibold">{{ scholar.college }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Program</dt><dd class="font-semibold">{{ scholar.program|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Program of Studies</dt><dd class="font-semibold">{{ scholar.program_of_studies|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Campus</dt><dd class="font-semibold">{{ scholar.campus }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">STEM / Non-STEM</dt><dd class="font-semibold">{{ scholar.stem_category|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Joining Year</dt><dd class="font-semibold">{{ scholar.joining_year|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Class Year</dt><dd class="font-semibold">{{ scholar.class_year|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Graduation Year</dt><dd class="font-semibold">{{ scholar.graduation_year|default:scholar.expected_graduation_year|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Length of Program</dt><dd class="font-semibold">{{ scholar.length_of_program|default:"-" }}</dd></div>
+    </dl>
+  </div>
+
+  <div class="card p-6">
+    <div class="section-title !mt-0"><span>Program</span><span>Program Info</span></div>
+    <dl class="grid gap-4 md:grid-cols-2">
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Category</dt><dd class="font-semibold">{{ scholar.category }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Cohort</dt><dd class="font-semibold">{{ scholar.cohort }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Batch</dt><dd class="font-semibold">{{ scholar.batch|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Type of Scholarship</dt><dd class="font-semibold">{{ scholar.type_of_scholarship|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Region Category</dt><dd class="font-semibold">{{ scholar.region_category|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Program Type</dt><dd class="font-semibold">{{ scholar.program_type }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Intake</dt><dd class="font-semibold">{{ scholar.intake|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Home Country</dt><dd class="font-semibold">{{ scholar.home_country|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Nationality Country</dt><dd class="font-semibold">{{ scholar.nationality_country|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Province</dt><dd class="font-semibold">{{ scholar.province|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">District</dt><dd class="font-semibold">{{ scholar.district|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Sector</dt><dd class="font-semibold">{{ scholar.sector|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Cell</dt><dd class="font-semibold">{{ scholar.cell|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Village</dt><dd class="font-semibold">{{ scholar.village|default:"-" }}</dd></div>
+    </dl>
+  </div>
+
+  <div class="card p-6">
+    <div class="section-title !mt-0"><span>Status</span><span>Status Info</span></div>
+    <dl class="grid gap-4 md:grid-cols-2">
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Active Status</dt><dd>{% if scholar.is_active %}<span class="status-badge status-active">Active</span>{% else %}<span class="status-badge status-inactive">Inactive</span>{% endif %}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Alumni Status</dt><dd>{% if scholar.is_alumni %}<span class="status-badge status-alumni">Alumni</span>{% else %}<span class="status-badge bg-slate-100 text-slate-500">Not yet</span>{% endif %}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Raw Dropout / Active Status</dt><dd class="font-semibold">{{ scholar.dropout_active_status|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Raw Alumni Status</dt><dd class="font-semibold">{{ scholar.alumni_status|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Consider Alumni as Active</dt><dd class="font-semibold">{% if scholar.consider_alumni_as_active %}Yes{% else %}No{% endif %}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Accepted / Rejected Offer</dt><dd class="font-semibold">{{ scholar.accepted_offer_status|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Promotion</dt><dd class="font-semibold">{{ scholar.promotion|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Date of Leaving</dt><dd class="font-semibold">{{ scholar.date_of_leaving_program|date:"M d, Y"|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Where is Going</dt><dd class="font-semibold">{{ scholar.where_is_going|default:"-" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Created</dt><dd class="font-semibold">{{ scholar.created_at|date:"M d, Y" }}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Updated</dt><dd class="font-semibold">{{ scholar.updated_at|date:"M d, Y" }}</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="card mt-5 p-6">
+  <div class="section-title !mt-0"><span>Family</span><span>Family and Life Status</span></div>
+  <dl class="grid gap-4 md:grid-cols-3">
+    <div><dt class="text-xs font-bold uppercase text-slate-500">Parent 1</dt><dd class="font-semibold">{{ scholar.family_parent_1|default:"-" }}</dd><dd class="text-sm text-slate-500">{{ scholar.family_parent_relation_1|default:"" }} {{ scholar.family_parent_phone_1|default:"" }}</dd></div>
+    <div><dt class="text-xs font-bold uppercase text-slate-500">Parent 2</dt><dd class="font-semibold">{{ scholar.family_parent_2|default:"-" }}</dd><dd class="text-sm text-slate-500">{{ scholar.family_parent_relation_2|default:"" }} {{ scholar.family_parent_phone_2|default:"" }}</dd></div>
+    <div><dt class="text-xs font-bold uppercase text-slate-500">Parent 3</dt><dd class="font-semibold">{{ scholar.family_parent_3|default:"-" }}</dd><dd class="text-sm text-slate-500">{{ scholar.family_parent_relation_3|default:"" }} {{ scholar.family_parent_phone_3|default:"" }}</dd></div>
+    <div><dt class="text-xs font-bold uppercase text-slate-500">Life Status</dt><dd class="font-semibold">{{ scholar.life_status|default:"-" }}</dd></div>
+  </dl>
+</section>
+
+<section class="card mt-5 p-6">
+  <div class="section-title !mt-0"><span>Notes</span><span>Remarks</span></div>
+  <p class="text-slate-700">{{ scholar.remarks|default:"No remarks." }}</p>
+</section>
+{% endblock %}
