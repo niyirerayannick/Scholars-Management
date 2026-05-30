@@ -32,6 +32,56 @@
   {% endfor %}
 </section>
 
+<div class="section-title"><span>Countries</span><span>Scholars by Home Country</span></div>
+<section class="country-grid">
+  <div class="card country-map-card p-5">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div>
+        <h2 class="font-black text-[#354055]">Country Footprint</h2>
+        <p class="mt-1 text-sm font-semibold text-slate-400">Bubble size reflects total scholars by home country.</p>
+      </div>
+      <div class="country-stat">
+        <span>{{ payload.countries.country_count }}</span>
+        <small>countries</small>
+      </div>
+    </div>
+    <div class="country-map" aria-label="Scholar country footprint">
+      <div class="map-land map-land-a"></div>
+      <div class="map-land map-land-b"></div>
+      <div class="map-land map-land-c"></div>
+      {% for country in payload.countries.bubbles %}
+        <div class="country-bubble" style="left:{{ country.x }}%; top:{{ country.y }}%; width:{{ country.size }}px; height:{{ country.size }}px;">
+          <span>{{ country.total }}</span>
+          <em>{{ country.label }}</em>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card p-5">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h2 class="font-black text-[#354055]">Top Countries</h2>
+        {% if payload.countries.top %}<p class="mt-1 text-sm font-semibold text-slate-400">{{ payload.countries.top.label }} leads with {{ payload.countries.top.total }} scholars.</p>{% endif %}
+      </div>
+    </div>
+    <div class="country-list">
+      {% for country in payload.countries.rows|slice:":8" %}
+        <div class="country-row">
+          <div class="country-row-top"><span>{{ country.label }}</span><strong>{{ country.total }}</strong></div>
+          <div class="country-track"><div class="country-fill" style="width:{{ country.retention }}%"></div></div>
+          <div class="country-meta">{{ country.active }} active / {{ country.inactive }} inactive</div>
+        </div>
+      {% empty %}
+        <p class="text-sm font-semibold text-slate-400">No country data available.</p>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card country-chart-card p-5">
+    <h2 class="font-black text-[#354055]">Country Distribution</h2>
+    <div class="chart-box"><canvas id="countryChart"></canvas></div>
+  </div>
+</section>
+
 <div class="section-title"><span>Charts</span><span>Database Driven Visual Analysis</span></div>
 <section class="mt-6 grid gap-5 xl:grid-cols-2">
   <div class="card p-5"><h2 class="font-black text-[#354055]">Gender Distribution</h2><div class="chart-box"><canvas id="genderChart"></canvas></div></div>
@@ -57,6 +107,7 @@ function doughnut(id, labels, values) { new Chart(document.getElementById(id), {
 doughnut('genderChart', charts.gender_distribution.labels, charts.gender_distribution.values);
 new Chart(document.getElementById('categoryGenderChart'), {type:'bar', data:{labels:charts.category_by_gender.labels, datasets:[{label:'Female', data:charts.category_by_gender.female, backgroundColor:'#00628b'},{label:'Male', data:charts.category_by_gender.male, backgroundColor:'#ce971c'},{label:'Other', data:charts.category_by_gender.other, backgroundColor:'#000000'}]}, options:baseOptions});
 new Chart(document.getElementById('cohortChart'), {type:'line', data:{labels:charts.cohort_enrollment_retention.labels, datasets:[{label:'Enrolled', data:charts.cohort_enrollment_retention.enrolled, borderColor:'#00628b', backgroundColor:'#00628b22', tension:.35},{label:'Retained', data:charts.cohort_enrollment_retention.retained, borderColor:'#ce971c', backgroundColor:'#ce971c22', tension:.35}]}, options:baseOptions});
+new Chart(document.getElementById('countryChart'), {type:'bar', data:{labels:charts.countries.labels, datasets:[{label:'Total', data:charts.countries.totals, backgroundColor:'#00628b'},{label:'Active', data:charts.countries.active, backgroundColor:'#c68b1a'}]}, options:{...baseOptions, indexAxis:'y'}});
 bar('campusChart', charts.campus_performance.labels, charts.campus_performance.values);
 bar('collegeChart', charts.college_performance.labels, charts.college_performance.values);
 bar('nationalityChart', charts.nationality.labels, charts.nationality.values);
