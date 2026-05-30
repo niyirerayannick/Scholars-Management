@@ -1,6 +1,8 @@
 from django.db import models
 from django.urls import reverse
 
+from .status import is_active_replacement
+
 
 class Scholar(models.Model):
     GENDER_CHOICES = [("Female", "Female"), ("Male", "Male"), ("Other", "Other")]
@@ -91,6 +93,14 @@ class Scholar(models.Model):
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+    @property
+    def active_from_replacement(self):
+        return is_active_replacement(self.replacement)
+
+    @property
+    def active_status_label(self):
+        return "Active" if self.active_from_replacement else "Inactive"
 
     def get_absolute_url(self):
         return reverse("scholar_detail", kwargs={"pk": self.pk})

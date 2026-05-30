@@ -11,6 +11,7 @@ from openpyxl.utils import get_column_letter
 from accounts.permissions import DATA_OFFICER, PROGRAM_MANAGER, role_required
 from scholars.forms import ScholarForm
 from scholars.models import Scholar
+from scholars.status import is_active_replacement
 
 from .forms import ExcelImportForm
 
@@ -197,6 +198,8 @@ def normalize_row(raw):
     data["is_active"] = parse_bool(data.get("is_active")) if data.get("is_active") not in (None, "") else True
     if raw.get("dropout_active_status"):
         data["is_active"] = infer_active(raw.get("dropout_active_status"))
+    if raw.get("replacement") not in (None, ""):
+        data["is_active"] = is_active_replacement(raw.get("replacement"))
     data["is_alumni"] = parse_bool(data.get("is_alumni")) if data.get("is_alumni") not in (None, "") else False
     if raw.get("alumni_status"):
         data["is_alumni"] = infer_alumni(raw.get("alumni_status"))

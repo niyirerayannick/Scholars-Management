@@ -92,7 +92,7 @@ def export_scholars_excel(scholars):
             scholar.nationality,
             scholar.home_country,
             scholar.district,
-            "Active" if scholar.is_active else "Inactive",
+            scholar.active_status_label,
             "Yes" if scholar.is_alumni else "No",
             scholar.graduation_year or scholar.expected_graduation_year or "",
         ])

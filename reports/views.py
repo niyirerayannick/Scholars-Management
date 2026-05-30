@@ -14,6 +14,7 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 
 from scholars.forms import ScholarFilterForm, filter_scholars
 from scholars.models import Scholar
+from scholars.status import active_replacement_q, inactive_replacement_q
 
 
 REPORTS = {
@@ -33,7 +34,7 @@ def report_queryset(request, slug):
     if slug == "alumni":
         qs = qs.filter(is_alumni=True)
     elif slug == "dropout":
-        qs = qs.filter(is_active=False)
+        qs = qs.filter(inactive_replacement_q())
     return qs, form
 
 
@@ -44,7 +45,7 @@ def summary_rows(qs, group_field):
         group_field = "cohort"
     rows = qs.values(group_field).annotate(
         total=Count("id"),
-        active=Count("id", filter=Q(is_active=True)),
+        active=Count("id", filter=active_replacement_q()),
         alumni=Count("id", filter=Q(is_alumni=True)),
         female=Count("id", filter=Q(gender="Female")),
         male=Count("id", filter=Q(gender="Male")),
@@ -67,8 +68,8 @@ def report_detail(request, slug):
     if export == "pdf":
         return export_pdf(title, qs, group_field)
     total = qs.count()
-    active = qs.filter(is_active=True).count()
-    inactive = qs.filter(is_active=False).count()
+    active = qs.filter(active_replacement_q()).count()
+    inactive = qs.filter(inactive_replacement_q()).count()
     alumni = qs.filter(is_alumni=True).count()
     female = qs.filter(gender="Female").count()
     summary_cards = [
@@ -98,7 +99,7 @@ def scholar_rows(qs):
         s.category,
         s.nationality,
         s.graduation_year or s.expected_graduation_year or "",
-        "Active" if s.is_active else "Inactive",
+        s.active_status_label,
         "Yes" if s.is_alumni else "No",
     ] for s in qs]
 

@@ -31,3 +31,7 @@ DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=True
 - The container runs migrations automatically before starting Gunicorn.
 - Static files are collected at build time and served by WhiteNoise.
 - SQLite is still available for local/simple use, but PostgreSQL is recommended for Coolify.
+- If you test the app over plain `http://` with `DJANGO_DEBUG=False`, set
+  `DJANGO_CSRF_COOKIE_SECURE=False` and `DJANGO_SESSION_COOKIE_SECURE=False`.
+  Secure cookies are enabled by default outside debug mode and are only sent by
+  browsers over HTTPS.

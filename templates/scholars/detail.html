@@ -7,7 +7,7 @@
     <h2 class="mt-2 text-4xl font-black">{{ scholar.full_name }}</h2>
     <p class="mt-1 text-white/80">{{ scholar.email }}{% if scholar.phone %} / {{ scholar.phone }}{% endif %}</p>
     <div class="mt-4 flex flex-wrap gap-2">
-      {% if scholar.is_active %}<span class="status-badge bg-white text-[#00628b]">Active</span>{% else %}<span class="status-badge bg-white text-[#b05c1a]">Inactive</span>{% endif %}
+      {% if scholar.active_from_replacement %}<span class="status-badge bg-white text-[#00628b]">Active</span>{% else %}<span class="status-badge bg-white text-[#b05c1a]">Inactive</span>{% endif %}
       {% if scholar.is_alumni %}<span class="status-badge bg-white text-[#5c3e8f]">Alumni</span>{% endif %}
       <span class="status-badge bg-white/15 text-white">{{ scholar.category }}</span>
       <span class="status-badge bg-white/15 text-white">{{ scholar.level_of_study }}</span>
@@ -78,7 +78,7 @@
   <div class="card p-6">
     <div class="section-title !mt-0"><span>Status</span><span>Status Info</span></div>
     <dl class="grid gap-4 md:grid-cols-2">
-      <div><dt class="text-xs font-bold uppercase text-slate-500">Active Status</dt><dd>{% if scholar.is_active %}<span class="status-badge status-active">Active</span>{% else %}<span class="status-badge status-inactive">Inactive</span>{% endif %}</dd></div>
+      <div><dt class="text-xs font-bold uppercase text-slate-500">Active Status</dt><dd>{% if scholar.active_from_replacement %}<span class="status-badge status-active">Active</span>{% else %}<span class="status-badge status-inactive">Inactive</span>{% endif %}</dd></div>
       <div><dt class="text-xs font-bold uppercase text-slate-500">Alumni Status</dt><dd>{% if scholar.is_alumni %}<span class="status-badge status-alumni">Alumni</span>{% else %}<span class="status-badge bg-slate-100 text-slate-500">Not yet</span>{% endif %}</dd></div>
       <div><dt class="text-xs font-bold uppercase text-slate-500">Raw Dropout / Active Status</dt><dd class="font-semibold">{{ scholar.dropout_active_status|default:"-" }}</dd></div>
       <div><dt class="text-xs font-bold uppercase text-slate-500">Raw Alumni Status</dt><dd class="font-semibold">{{ scholar.alumni_status|default:"-" }}</dd></div>
