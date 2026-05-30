@@ -1,7 +1,7 @@
 from django.db.models import Count, Q
 
 from scholars.models import Scholar
-from scholars.status import active_dropout_status_q, inactive_dropout_status_q
+from scholars.status import active_dropout_status_q, inactive_dropout_status_q, is_active_dropout_status
 
 
 def retention_rate(queryset=None):
@@ -66,6 +66,7 @@ def charts(queryset=None):
         "campus_performance": labels_values(qs, "campus"),
         "college_performance": labels_values(qs, "college"),
         "nationality": labels_values(qs, "nationality"),
+        "countries": country_overview(qs),
         "level_of_studies": labels_values(qs, "level_of_study"),
         "stem_non_stem": labels_values(qs, "stem_category"),
         "graduation_year_pipeline": labels_values(qs.exclude(graduation_year__isnull=True), "graduation_year"),
@@ -82,6 +83,76 @@ def pct(part, whole):
     if not whole:
         return 0
     return round((part / whole) * 100, 1)
+
+
+COUNTRY_ALIASES = {
+    "drc": "DRC",
+    "dr congo": "DRC",
+    "democratic republic of congo": "DRC",
+    "rwandan": "Rwanda",
+}
+
+COUNTRY_POSITIONS = {
+    "Rwanda": (56, 56),
+    "Burundi": (55, 63),
+    "DRC": (46, 58),
+    "South Sudan": (54, 40),
+    "Kenya": (64, 55),
+    "Malawi": (59, 76),
+    "Sudan": (52, 27),
+    "Eritrea": (61, 30),
+    "Nigeria": (27, 49),
+    "Zimbabwe": (55, 84),
+}
+
+
+def country_label(*values):
+    for value in values:
+        text = " ".join(str(value or "").strip().split())
+        if not text:
+            continue
+        key = text.lower()
+        return COUNTRY_ALIASES.get(key, text.upper() if key == "drc" else text.title())
+    return "Unspecified"
+
+
+def country_distribution(qs, limit=None):
+    countries = {}
+    for row in qs.values("home_country", "nationality_country", "nationality", "dropout_active_status"):
+        label = country_label(row["home_country"], row["nationality_country"], row["nationality"])
+        item = countries.setdefault(label, {"label": label, "total": 0, "active": 0})
+        item["total"] += 1
+        if is_active_dropout_status(row["dropout_active_status"]):
+            item["active"] += 1
+    rows = sorted(countries.values(), key=lambda item: (-item["total"], item["label"]))
+    for row in rows:
+        row["inactive"] = row["total"] - row["active"]
+        row["retention"] = pct(row["active"], row["total"])
+    return rows[:limit] if limit else rows
+
+
+def country_overview(qs):
+    rows = country_distribution(qs)
+    max_total = max((row["total"] for row in rows), default=1)
+    bubbles = []
+    fallback_positions = [(22, 28), (76, 34), (74, 68), (32, 74), (42, 20)]
+    for index, row in enumerate(rows[:10]):
+        x, y = COUNTRY_POSITIONS.get(row["label"], fallback_positions[index % len(fallback_positions)])
+        bubbles.append({
+            **row,
+            "x": x,
+            "y": y,
+            "size": round(18 + (row["total"] / max_total) * 46, 1),
+        })
+    return {
+        "rows": rows,
+        "top": rows[0] if rows else None,
+        "country_count": len([row for row in rows if row["label"] != "Unspecified"]),
+        "bubbles": bubbles,
+        "labels": [row["label"] for row in rows],
+        "totals": [row["total"] for row in rows],
+        "active": [row["active"] for row in rows],
+    }
 
 
 def analysis_queryset(params):
@@ -208,6 +279,7 @@ def chart_payload(qs):
     levels = group_stats(qs, "level_of_study")
     return {
         "gender": gender_summary(qs),
+        "countries": country_overview(qs),
         "categories": categories,
         "cohorts": cohorts,
         "campuses": campuses,

@@ -89,6 +89,26 @@
       <div class="analysis-card"><div class="ch"><div><div class="ct">Active Scholars by Gender and Category</div><div class="cs">Stacked gender split per category</div></div><span class="ctag ctag-slate">KPI</span></div><div style="height:280px"><canvas id="catGenderChart"></canvas></div></div>
     </div>
 
+    <div class="sec-row"><span class="sec-tag">Countries</span><span class="sec-title">Scholar Footprint by Home Country</span><div class="sec-rule"></div><span class="sec-note">{{ payload.countries.country_count }} countries</span></div>
+    <div class="g31">
+      <div class="analysis-card">
+        <div class="ch"><div><div class="ct">Country Footprint Map</div><div class="cs">Bubble size reflects total scholars by home country</div></div><span class="ctag ctag-teal">Map</span></div>
+        <div class="country-map" aria-label="Scholar country footprint">
+          <div class="map-land map-land-a"></div>
+          <div class="map-land map-land-b"></div>
+          <div class="map-land map-land-c"></div>
+          {% for country in payload.countries.bubbles %}
+            <div class="country-bubble" style="left:{{ country.x }}%; top:{{ country.y }}%; width:{{ country.size }}px; height:{{ country.size }}px;"><span>{{ country.total }}</span><em>{{ country.label }}</em></div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="analysis-card">
+        <div class="ch"><div><div class="ct">Country Ranking</div><div class="cs">Total and active scholar mix</div></div><span class="ctag ctag-gold">Ranked</span></div>
+        <div class="plist">{% for row in payload.countries.rows|slice:":10" %}<div class="prow"><div class="ptop"><span class="pname">{{ row.label }}</span><span class="pnum">{{ row.active }} / {{ row.total }}</span></div><div class="ptrack"><div class="pfill" style="width:{{ row.retention }}%"></div></div></div>{% endfor %}</div>
+      </div>
+    </div>
+    <div class="analysis-card" style="margin-bottom:16px;"><div class="ch"><div><div class="ct">Scholars by Country</div><div class="cs">Total vs active scholars</div></div><span class="ctag ctag-slate">Distribution</span></div><div style="height:290px"><canvas id="countryAnalysisChart"></canvas></div></div>
+
     <div class="sec-row"><span class="sec-tag">Academic</span><span class="sec-title">Level of Studies, STEM Mix, Pipeline</span><div class="sec-rule"></div></div>
     <div class="g3">
       <div class="analysis-card"><div class="ch"><div><div class="ct">Scholars by Level of Study</div><div class="cs">Academic level mix</div></div><span class="ctag ctag-plum">KPI</span></div><div style="height:220px"><canvas id="levelChart"></canvas></div></div>
@@ -130,6 +150,7 @@ donut('campusPie', labels(A.campuses), values(A.campuses), '60%');
 bar('campusGenderChart', labels(A.campuses), [{label:'Female', data:values(A.campuses,'female'), backgroundColor:'#00628b'}, {label:'Male', data:values(A.campuses,'male'), backgroundColor:'#ce971c'}]);
 bar('nationalityChart', labels(A.nationality), [{label:'Scholars', data:values(A.nationality), backgroundColor:'#00628b'}], {indexAxis:'y'});
 bar('catGenderChart', A.categories.map(r=>r.category || 'Unspecified'), [{label:'Female', data:A.categories.map(r=>r.female), backgroundColor:'#00628b'}, {label:'Male', data:A.categories.map(r=>r.male), backgroundColor:'#ce971c'}], {indexAxis:'y', scales:{x:{stacked:true}, y:{stacked:true}}});
+bar('countryAnalysisChart', A.countries.labels, [{label:'Total', data:A.countries.totals, backgroundColor:'#00628b'}, {label:'Active', data:A.countries.active, backgroundColor:'#ce971c'}], {indexAxis:'y'});
 donut('levelChart', labels(A.levels), values(A.levels), '68%');
 donut('stemChart', labels(A.stem), values(A.stem), '68%');
 bar('graduationChart', labels(A.graduation), [{label:'Enrolled', data:values(A.graduation), backgroundColor:'#5c3e8f'}, {label:'Active', data:values(A.graduation,'active'), backgroundColor:'#00628b'}]);
