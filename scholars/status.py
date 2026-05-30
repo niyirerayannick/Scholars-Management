@@ -1,23 +1,23 @@
 from django.db.models import Q
 
 
-ACTIVE_REPLACEMENT_VALUES = {"active scholar"}
+ACTIVE_DROPOUT_STATUS_VALUES = {"active scholar"}
 
 
-def normalized_replacement(value):
+def normalized_status(value):
     return " ".join(str(value or "").strip().lower().split())
 
 
-def is_active_replacement(value):
-    return normalized_replacement(value) in ACTIVE_REPLACEMENT_VALUES
+def is_active_dropout_status(value):
+    return normalized_status(value) in ACTIVE_DROPOUT_STATUS_VALUES
 
 
-def active_replacement_q():
+def active_dropout_status_q():
     query = Q()
-    for value in ACTIVE_REPLACEMENT_VALUES:
-        query |= Q(replacement__iexact=value)
+    for value in ACTIVE_DROPOUT_STATUS_VALUES:
+        query |= Q(dropout_active_status__iexact=value)
     return query
 
 
-def inactive_replacement_q():
-    return ~active_replacement_q()
+def inactive_dropout_status_q():
+    return ~active_dropout_status_q()

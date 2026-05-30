@@ -1,7 +1,7 @@
 from django.db.models import Count, Q
 
 from scholars.models import Scholar
-from scholars.status import active_replacement_q, inactive_replacement_q
+from scholars.status import active_dropout_status_q, inactive_dropout_status_q
 
 
 def retention_rate(queryset=None):
@@ -9,15 +9,15 @@ def retention_rate(queryset=None):
     total = queryset.count()
     if not total:
         return 0
-    return round((queryset.filter(active_replacement_q()).count() / total) * 100, 1)
+    return round((queryset.filter(active_dropout_status_q()).count() / total) * 100, 1)
 
 
 def kpis():
     qs = Scholar.objects.all()
     return {
         "total_scholars": qs.count(),
-        "active_scholars": qs.filter(active_replacement_q()).count(),
-        "inactive_scholars": qs.filter(inactive_replacement_q()).count(),
+        "active_scholars": qs.filter(active_dropout_status_q()).count(),
+        "inactive_scholars": qs.filter(inactive_dropout_status_q()).count(),
         "retention_rate": retention_rate(qs),
         "female_scholars": qs.filter(gender="Female").count(),
         "male_scholars": qs.filter(gender="Male").count(),
@@ -39,7 +39,7 @@ def labels_values(queryset, field):
 
 def charts(queryset=None):
     qs = queryset or Scholar.objects.all()
-    cohorts = qs.values("cohort").annotate(enrolled=Count("id"), retained=Count("id", filter=active_replacement_q())).order_by("cohort")
+    cohorts = qs.values("cohort").annotate(enrolled=Count("id"), retained=Count("id", filter=active_dropout_status_q())).order_by("cohort")
     category_gender = qs.values("category").annotate(
         female=Count("id", filter=Q(gender="Female")),
         male=Count("id", filter=Q(gender="Male")),
@@ -100,9 +100,9 @@ def analysis_queryset(params):
             qs = qs.filter(**{field: value})
     status = params.get("status")
     if status == "active":
-        qs = qs.filter(active_replacement_q())
+        qs = qs.filter(active_dropout_status_q())
     elif status == "inactive":
-        qs = qs.filter(inactive_replacement_q())
+        qs = qs.filter(inactive_dropout_status_q())
     alumni = params.get("alumni")
     if alumni == "yes":
         qs = qs.filter(is_alumni=True)
@@ -134,8 +134,8 @@ def filter_options():
 def group_stats(qs, field):
     rows = qs.values(field).annotate(
         total=Count("id"),
-        active=Count("id", filter=active_replacement_q()),
-        inactive=Count("id", filter=inactive_replacement_q()),
+        active=Count("id", filter=active_dropout_status_q()),
+        inactive=Count("id", filter=inactive_dropout_status_q()),
         female=Count("id", filter=Q(gender="Female")),
         male=Count("id", filter=Q(gender="Male")),
         alumni=Count("id", filter=Q(is_alumni=True)),
@@ -168,8 +168,8 @@ def gender_summary(qs):
         "other": other,
         "female_pct": pct(female, total),
         "male_pct": pct(male, total),
-        "active_female": qs.filter(gender="Female").filter(active_replacement_q()).count(),
-        "active_male": qs.filter(gender="Male").filter(active_replacement_q()).count(),
+        "active_female": qs.filter(gender="Female").filter(active_dropout_status_q()).count(),
+        "active_male": qs.filter(gender="Male").filter(active_dropout_status_q()).count(),
         "alumni_female": qs.filter(gender="Female", is_alumni=True).count(),
         "alumni_male": qs.filter(gender="Male", is_alumni=True).count(),
     }
@@ -178,7 +178,7 @@ def gender_summary(qs):
 def category_totals(qs):
     rows = qs.values("category").annotate(
         total=Count("id"),
-        active=Count("id", filter=active_replacement_q()),
+        active=Count("id", filter=active_dropout_status_q()),
         female=Count("id", filter=Q(gender="Female")),
         male=Count("id", filter=Q(gender="Male")),
     ).order_by("category")
@@ -232,8 +232,8 @@ def top_bottom(rows):
 def analysis_context(params):
     qs = analysis_queryset(params)
     total = qs.count()
-    active = qs.filter(active_replacement_q()).count()
-    inactive = qs.filter(inactive_replacement_q()).count()
+    active = qs.filter(active_dropout_status_q()).count()
+    inactive = qs.filter(inactive_dropout_status_q()).count()
     female = qs.filter(gender="Female").count()
     alumni = qs.filter(is_alumni=True).count()
     payload = chart_payload(qs)

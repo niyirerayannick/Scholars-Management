@@ -2,7 +2,7 @@ from django import forms
 from django.db.models import Q
 
 from .models import Scholar
-from .status import active_replacement_q, inactive_replacement_q
+from .status import active_dropout_status_q, inactive_dropout_status_q
 
 
 class TailwindFormMixin:
@@ -119,9 +119,9 @@ def filter_scholars(queryset, data):
             lookup = field if field in ["gender", "level_of_study"] else f"{field}__icontains"
             queryset = queryset.filter(**{lookup: value})
     if cleaned.get("status") == "active":
-        queryset = queryset.filter(active_replacement_q())
+        queryset = queryset.filter(active_dropout_status_q())
     elif cleaned.get("status") == "inactive":
-        queryset = queryset.filter(inactive_replacement_q())
+        queryset = queryset.filter(inactive_dropout_status_q())
     if cleaned.get("alumni_status") == "yes":
         queryset = queryset.filter(is_alumni=True)
     elif cleaned.get("alumni_status") == "no":

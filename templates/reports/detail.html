@@ -46,7 +46,7 @@
       <thead><tr><th>Student No</th><th>Name</th><th>Gender</th><th>Level</th><th>College</th><th>Program</th><th>Campus</th><th>Scholarship</th><th>Status</th></tr></thead>
       <tbody>
         {% for scholar in scholars %}
-          <tr><td>{{ scholar.student_no|default:"-" }}</td><td class="font-bold">{{ scholar.full_name }}</td><td>{{ scholar.gender }}</td><td>{{ scholar.level_of_study }}</td><td>{{ scholar.college }}</td><td>{{ scholar.program|default:"-" }}</td><td>{{ scholar.campus }}</td><td>{{ scholar.type_of_scholarship|default:scholar.category }}</td><td>{% if scholar.active_from_replacement %}<span class="status-badge status-active">Active</span>{% else %}<span class="status-badge status-inactive">Inactive</span>{% endif %}</td></tr>
+          <tr><td>{{ scholar.student_no|default:"-" }}</td><td class="font-bold">{{ scholar.full_name }}</td><td>{{ scholar.gender }}</td><td>{{ scholar.level_of_study }}</td><td>{{ scholar.college }}</td><td>{{ scholar.program|default:"-" }}</td><td>{{ scholar.campus }}</td><td>{{ scholar.type_of_scholarship|default:scholar.category }}</td><td>{% if scholar.active_from_dropout_status %}<span class="status-badge status-active">Active</span>{% else %}<span class="status-badge status-inactive">Inactive</span>{% endif %}</td></tr>
         {% empty %}<tr><td colspan="9">No records.</td></tr>{% endfor %}
       </tbody>
     </table>

@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 
-from .status import is_active_replacement
+from .status import is_active_dropout_status
 
 
 class Scholar(models.Model):
@@ -95,12 +95,12 @@ class Scholar(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     @property
-    def active_from_replacement(self):
-        return is_active_replacement(self.replacement)
+    def active_from_dropout_status(self):
+        return is_active_dropout_status(self.dropout_active_status)
 
     @property
     def active_status_label(self):
-        return "Active" if self.active_from_replacement else "Inactive"
+        return "Active" if self.active_from_dropout_status else "Inactive"
 
     def get_absolute_url(self):
         return reverse("scholar_detail", kwargs={"pk": self.pk})
